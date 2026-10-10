@@ -33,6 +33,9 @@ export class User extends BaseEntity {
   @Column({ nullable: true })
   last_name: string;
 
+  @Column({ nullable: true })
+  organization: string;
+
   @ManyToOne(() => Facility, (facility) => facility.users, {
     nullable: true,
     onDelete: 'SET NULL',

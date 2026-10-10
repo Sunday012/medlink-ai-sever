@@ -1,9 +1,10 @@
-import { Entity, ManyToOne, JoinColumn, Column } from 'typeorm';
+import { Column, Entity, Index, JoinColumn, ManyToOne } from 'typeorm';
 import { BaseEntity } from './base.entity';
 import { Facility } from './facility.entity';
 import { Specialty } from './specialty.entity';
 
 @Entity('facility_specialties')
+@Index(['facility_id', 'specialty_id'], { unique: true })
 export class FacilitySpecialty extends BaseEntity {
   @ManyToOne(() => Facility, (facility) => facility.facility_specialties, {
     onDelete: 'CASCADE',

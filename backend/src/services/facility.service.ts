@@ -162,7 +162,9 @@ export class FacilityService {
 
     const facilitySpecialty = this.facilitySpecialtyRepository.create({
       facility,
+      facility_id: facility.id,
       specialty,
+      specialty_id: specialty.id,
       available_doctors: dto.available_doctors,
       available_beds: dto.available_beds,
     });

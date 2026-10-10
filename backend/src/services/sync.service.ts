@@ -1,6 +1,6 @@
 import { Injectable, BadRequestException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, IsNull } from 'typeorm';
+import { Repository, IsNull, Not } from 'typeorm';
 import {
   OfflineQueuedAction,
   ActionType,
@@ -9,6 +9,7 @@ import {
 import { User } from '../entities/user.entity';
 import { ReferralService } from './referral.service';
 import { PatientService } from './patient.service';
+import { AmbulanceDispatchService } from './ambulance-dispatch.service';
 
 export class QueueActionDto {
   action_type: ActionType;
@@ -38,6 +39,7 @@ export class SyncService {
     private userRepository: Repository<User>,
     private referralService: ReferralService,
     private patientService: PatientService,
+    private ambulanceDispatchService: AmbulanceDispatchService,
   ) {}
 
   async queueAction(
@@ -95,15 +97,16 @@ export class SyncService {
           synced: true,
         });
       } catch (error) {
+        const message = error instanceof Error ? error.message : 'Unknown sync error';
         failedCount++;
         action.sync_failed = true;
-        action.sync_error = error.message;
+        action.sync_error = message;
         await this.queuedActionRepository.save(action);
         results.push({
           action_id: action.id,
           action_type: action.action_type,
           synced: false,
-          error: error.message,
+          error: message,
         });
       }
     }
@@ -148,11 +151,14 @@ export class SyncService {
         break;
 
       case ActionType.DISPATCH_AMBULANCE:
-        // TODO: Implement ambulance dispatch replay
+        await this.ambulanceDispatchService.createDispatchRequest(action.payload as any);
         break;
 
       case ActionType.UPDATE_DISPATCH_STATUS:
-        // TODO: Implement dispatch status update replay
+        await this.ambulanceDispatchService.updateDispatchStatus(
+          action.entity_id,
+          action.payload as any,
+        );
         break;
 
       default:
@@ -170,9 +176,9 @@ export class SyncService {
     });
   }
 
-  async retryFailedAction(actionId: string): Promise<OfflineQueuedAction> {
+  async retryFailedAction(actionId: string, userId: string): Promise<OfflineQueuedAction> {
     const action = await this.queuedActionRepository.findOne({
-      where: { id: actionId },
+      where: { id: actionId, user_id: userId },
     });
 
     if (!action) {
@@ -185,15 +191,17 @@ export class SyncService {
       action.sync_failed = false;
       action.sync_error = null as any;
     } catch (error) {
-      action.sync_error = error.message;
+      action.sync_error = error instanceof Error ? error.message : 'Unknown sync error';
+      action.sync_failed = true;
+      await this.queuedActionRepository.save(action);
       throw error;
     }
 
     return this.queuedActionRepository.save(action);
   }
 
-  async deleteQueuedAction(actionId: string): Promise<void> {
-    await this.queuedActionRepository.delete(actionId);
+  async deleteQueuedAction(actionId: string, userId: string): Promise<void> {
+    await this.queuedActionRepository.delete({ id: actionId, user_id: userId });
   }
 
   async getQueueStats(userId: string): Promise<{
@@ -210,7 +218,7 @@ export class SyncService {
     });
 
     const total_synced = await this.queuedActionRepository.count({
-      where: { user_id: userId, synced_at: IsNull(), sync_failed: false },
+      where: { user_id: userId, synced_at: Not(IsNull()) },
     });
 
     return {

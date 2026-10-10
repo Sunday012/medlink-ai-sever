@@ -42,6 +42,7 @@ export class PatientService {
     const patient = this.patientRepository.create({
       ...dto,
       clinic,
+      clinic_id: clinic.id,
     });
 
     return this.patientRepository.save(patient);

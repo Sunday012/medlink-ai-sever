@@ -88,9 +88,13 @@ export class ReferralService {
 
     const referral = this.referralRepository.create({
       patient,
+      patient_id: patient.id,
       from_facility: fromFacility,
+      from_facility_id: fromFacility.id,
       to_facility: toFacility,
+      to_facility_id: toFacility.id,
       recommended_specialty: specialty,
+      recommended_specialty_id: specialty?.id,
       urgency_level: dto.urgency_level,
       symptoms: dto.symptoms,
       test_results: dto.test_results,
@@ -191,6 +195,7 @@ export class ReferralService {
         throw new NotFoundException('Receiving facility not found');
       }
       referral.to_facility = facility;
+      referral.to_facility_id = facility.id;
     }
 
     if (dto.recommended_specialty_id) {
@@ -201,6 +206,7 @@ export class ReferralService {
         throw new NotFoundException('Specialty not found');
       }
       referral.recommended_specialty = specialty;
+      referral.recommended_specialty_id = specialty.id;
     }
 
     Object.assign(referral, {

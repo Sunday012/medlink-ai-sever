@@ -7,8 +7,7 @@ async function bootstrap() {
 
   app.useGlobalPipes(
     new ValidationPipe({
-      whitelist: true,
-      forbidNonWhitelisted: true,
+      whitelist: false,
       transform: true,
       transformOptions: {
         enableImplicitConversion: true,
@@ -17,12 +16,14 @@ async function bootstrap() {
   );
 
   app.enableCors({
-    origin: process.env.CORS_ORIGIN || 'http://localhost:3001',
+    origin: (process.env.CORS_ORIGIN || 'http://localhost:5173')
+      .split(',')
+      .map((origin) => origin.trim()),
     credentials: true,
   });
 
   const port = process.env.API_PORT ?? 3000;
   await app.listen(port);
-  console.log(`MedLink AI Backend running on port ${port}`);
+  console.log(`MedLink AI Backend running at http://localhost:${port}/api/v1`);
 }
-bootstrap();
+void bootstrap();

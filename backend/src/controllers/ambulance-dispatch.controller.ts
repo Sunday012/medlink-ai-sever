@@ -17,6 +17,8 @@ import {
 } from '../services/ambulance-dispatch.service';
 import { AmbulanceDispatchRequest, DispatchStatus } from '../entities/ambulance-dispatch-request.entity';
 import { UrgencyLevel } from '../entities/referral.entity';
+import { Roles } from '../auth/roles.decorator';
+import { UserRole } from '../entities/user.entity';
 
 @Controller('api/v1/ambulance')
 export class AmbulanceDispatchController {
@@ -64,6 +66,7 @@ export class AmbulanceDispatchController {
   }
 
   @Post('dispatch/:id/assign')
+  @Roles(UserRole.AMBULANCE_DISPATCHER, UserRole.HOSPITAL_ADMIN, UserRole.SYSTEM_ADMIN)
   @HttpCode(HttpStatus.OK)
   async assignDispatcher(
     @Param('id') dispatchId: string,
@@ -73,6 +76,7 @@ export class AmbulanceDispatchController {
   }
 
   @Put('dispatch/:id/status')
+  @Roles(UserRole.AMBULANCE_DISPATCHER, UserRole.HOSPITAL_ADMIN, UserRole.SYSTEM_ADMIN)
   async updateDispatchStatus(
     @Param('id') dispatchId: string,
     @Body() dto: UpdateDispatchStatusDto,
@@ -81,6 +85,7 @@ export class AmbulanceDispatchController {
   }
 
   @Post('dispatch/:id/cancel')
+  @Roles(UserRole.AMBULANCE_DISPATCHER, UserRole.HOSPITAL_ADMIN, UserRole.SYSTEM_ADMIN)
   @HttpCode(HttpStatus.OK)
   async cancelDispatch(
     @Param('id') dispatchId: string,

@@ -92,9 +92,13 @@ export class AmbulanceDispatchService {
 
     const dispatch = this.dispatchRepository.create({
       referral: referral || undefined,
+      referral_id: referral?.id,
       patient,
+      patient_id: patient.id,
       from_facility: fromFacility,
+      from_facility_id: fromFacility.id,
       to_facility: toFacility,
+      to_facility_id: toFacility.id,
       urgency_level: dto.urgency_level,
       status: DispatchStatus.REQUESTED,
       eta_minutes: dto.eta_minutes,

@@ -66,7 +66,7 @@ export class AmbulanceDispatchRequest extends BaseEntity {
 
   @Column({
     type: 'enum',
-    enum: 'low|medium|high|critical',
+    enum: ['low', 'medium', 'high', 'critical'],
     nullable: true,
   })
   urgency_level: string;

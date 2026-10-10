@@ -189,12 +189,12 @@ export class TriageService {
     if (tier.test_results) {
       for (const [key, condition] of Object.entries(tier.test_results)) {
         const testValue = testResults[key];
-        if (!testValue) continue;
+        if (testValue === undefined || testValue === null) continue;
 
         const cond = condition as any;
-        if (cond.min && testValue < cond.min) return false;
-        if (cond.max && testValue > cond.max) return false;
-        if (cond.equals && testValue !== cond.equals) return false;
+        if (cond.min !== undefined && testValue < cond.min) return false;
+        if (cond.max !== undefined && testValue > cond.max) return false;
+        if (cond.equals !== undefined && testValue !== cond.equals) return false;
       }
     }
 

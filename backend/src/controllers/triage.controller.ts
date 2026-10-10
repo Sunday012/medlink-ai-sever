@@ -15,6 +15,8 @@ import {
   TriageResult,
 } from '../services/triage.service';
 import { TriageRule } from '../entities/triage-rule.entity';
+import { Roles } from '../auth/roles.decorator';
+import { UserRole } from '../entities/user.entity';
 
 @Controller('api/v1/triage')
 export class TriageController {
@@ -35,6 +37,7 @@ export class TriageController {
   }
 
   @Post('rules')
+  @Roles(UserRole.SYSTEM_ADMIN)
   @HttpCode(HttpStatus.CREATED)
   async createTriageRule(
     @Body() dto: CreateTriageRuleDto,
@@ -59,6 +62,7 @@ export class TriageController {
   }
 
   @Post('rules/:id/publish')
+  @Roles(UserRole.SYSTEM_ADMIN)
   @HttpCode(HttpStatus.OK)
   async publishTriageRule(@Param('id') id: string): Promise<TriageRule> {
     return this.triageService.publishTriageRule(id);

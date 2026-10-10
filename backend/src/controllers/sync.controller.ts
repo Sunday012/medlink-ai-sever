@@ -8,6 +8,7 @@ import {
   Query,
   HttpCode,
   HttpStatus,
+  Req,
 } from '@nestjs/common';
 import {
   SyncService,
@@ -24,55 +25,59 @@ export class SyncController {
   @HttpCode(HttpStatus.CREATED)
   async queueAction(
     @Body() dto: QueueActionDto,
-    @Query('userId') userId: string,
+    @Req() request: { user: { id: string } },
   ): Promise<OfflineQueuedAction> {
-    return this.syncService.queueAction(userId, dto);
+    return this.syncService.queueAction(request.user.id, dto);
   }
 
   @Get('pending')
   async getPendingActions(
-    @Query('userId') userId: string,
+    @Req() request: { user: { id: string } },
   ): Promise<OfflineQueuedAction[]> {
-    return this.syncService.getPendingActions(userId);
+    return this.syncService.getPendingActions(request.user.id);
   }
 
   @Post('sync')
   @HttpCode(HttpStatus.OK)
   async syncPendingActions(
-    @Query('userId') userId: string,
+    @Req() request: { user: { id: string } },
   ): Promise<SyncResultDto> {
-    return this.syncService.syncPendingActions(userId);
+    return this.syncService.syncPendingActions(request.user.id);
   }
 
   @Get('failed')
   async getFailedActions(
-    @Query('userId') userId: string,
+    @Req() request: { user: { id: string } },
   ): Promise<OfflineQueuedAction[]> {
-    return this.syncService.getFailedActions(userId);
+    return this.syncService.getFailedActions(request.user.id);
   }
 
   @Post('retry/:actionId')
   @HttpCode(HttpStatus.OK)
   async retryFailedAction(
     @Param('actionId') actionId: string,
+    @Req() request: { user: { id: string } },
   ): Promise<OfflineQueuedAction> {
-    return this.syncService.retryFailedAction(actionId);
+    return this.syncService.retryFailedAction(actionId, request.user.id);
   }
 
   @Delete('queue/:actionId')
   @HttpCode(HttpStatus.NO_CONTENT)
-  async deleteQueuedAction(@Param('actionId') actionId: string): Promise<void> {
-    return this.syncService.deleteQueuedAction(actionId);
+  async deleteQueuedAction(
+    @Param('actionId') actionId: string,
+    @Req() request: { user: { id: string } },
+  ): Promise<void> {
+    return this.syncService.deleteQueuedAction(actionId, request.user.id);
   }
 
   @Get('stats')
   async getQueueStats(
-    @Query('userId') userId: string,
+    @Req() request: { user: { id: string } },
   ): Promise<{
     total_pending: number;
     total_failed: number;
     total_synced: number;
   }> {
-    return this.syncService.getQueueStats(userId);
+    return this.syncService.getQueueStats(request.user.id);
   }
 }

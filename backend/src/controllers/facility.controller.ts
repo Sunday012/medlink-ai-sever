@@ -18,12 +18,15 @@ import {
 } from '../services/facility.service';
 import { Facility, FacilityType } from '../entities/facility.entity';
 import { FacilitySpecialty } from '../entities/facility-specialty.entity';
+import { Roles } from '../auth/roles.decorator';
+import { UserRole } from '../entities/user.entity';
 
 @Controller('api/v1/facilities')
 export class FacilityController {
   constructor(private readonly facilityService: FacilityService) {}
 
   @Post()
+  @Roles(UserRole.HOSPITAL_ADMIN, UserRole.SYSTEM_ADMIN)
   @HttpCode(HttpStatus.CREATED)
   async createFacility(@Body() dto: CreateFacilityDto): Promise<Facility> {
     return this.facilityService.createFacility(dto);
@@ -60,6 +63,7 @@ export class FacilityController {
   }
 
   @Put(':id')
+  @Roles(UserRole.HOSPITAL_ADMIN, UserRole.SYSTEM_ADMIN)
   async updateFacility(
     @Param('id') id: string,
     @Body() dto: UpdateFacilityDto,
@@ -68,6 +72,7 @@ export class FacilityController {
   }
 
   @Post(':id/specialties')
+  @Roles(UserRole.HOSPITAL_ADMIN, UserRole.SYSTEM_ADMIN)
   @HttpCode(HttpStatus.CREATED)
   async addSpecialtyToFacility(
     @Param('id') facilityId: string,
@@ -77,6 +82,7 @@ export class FacilityController {
   }
 
   @Delete(':id/specialties/:specialtyId')
+  @Roles(UserRole.HOSPITAL_ADMIN, UserRole.SYSTEM_ADMIN)
   @HttpCode(HttpStatus.NO_CONTENT)
   async removeSpecialtyFromFacility(
     @Param('id') facilityId: string,
@@ -95,6 +101,7 @@ export class FacilityController {
   }
 
   @Put(':id/deactivate')
+  @Roles(UserRole.SYSTEM_ADMIN)
   async deactivateFacility(@Param('id') id: string): Promise<Facility> {
     return this.facilityService.deactivateFacility(id);
   }

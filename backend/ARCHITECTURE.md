@@ -96,8 +96,8 @@ Client (online)
   → POST /sync/sync
   → Server validates patient, facility, specialty
   → Saves referral
-  → (Optional) POST Claude API for cloud_recommendation
-  → Nurse sees enriched referral
+  → Optional reviewed recommendation can be attached by an authorized service
+  → Nurse sees the referral and deterministic triage result
 ```
 
 ### 3. QR Verification (Receiving Hospital)

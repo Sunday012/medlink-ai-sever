@@ -12,6 +12,8 @@ import {
 } from '@nestjs/common';
 import { PatientService, CreatePatientDto, UpdatePatientDto } from '../services/patient.service';
 import { Patient } from '../entities/patient.entity';
+import { Roles } from '../auth/roles.decorator';
+import { UserRole } from '../entities/user.entity';
 
 @Controller('api/v1/patients')
 export class PatientController {
@@ -50,6 +52,7 @@ export class PatientController {
   }
 
   @Delete(':id')
+  @Roles(UserRole.HOSPITAL_ADMIN, UserRole.SYSTEM_ADMIN)
   @HttpCode(HttpStatus.NO_CONTENT)
   async deletePatient(@Param('id') id: string): Promise<void> {
     return this.patientService.deletePatient(id);
